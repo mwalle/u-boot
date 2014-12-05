@@ -130,7 +130,7 @@
 		"&& load ide ${hdpart} 0x00100000 /uImage.buffalo "	\
 		"&& load ide ${hdpart} 0x00800000 /initrd.buffalo "	\
 		"&& bootm 0x00100000 0x00800000\0"			\
-	"bootcmd_net=bootp ${kernel_addr} uImage "			\
+	"bootcmd_net=tftpboot ${kernel_addr} uImage "			\
 		"&& tftpboot ${ramdisk_addr} uInitrd "			\
 		"&& tftpboot ${fdt_addr} " CONFIG_FDTFILE " "		\
 		"&& bootm ${kernel_addr} ${ramdisk_addr} ${fdt_addr}\0"	\
