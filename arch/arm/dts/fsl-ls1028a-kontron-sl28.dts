@@ -1,0 +1,128 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Kontron SMARC-sAL28 device tree source (base version)
+ */
+
+/dts-v1/;
+
+#include "fsl-ls1028a.dtsi"
+
+/ {
+	u-boot,dm-pre-reloc;
+	model = "Kontron SMARC-sAL28 Board";
+	compatible = "kontron,sl28", "fsl,ls1028a";
+
+	aliases {
+		serial0 = &serial0;
+		serial1 = &serial1;
+		spi0 = &fspi;
+		spi1 = &dspi2;
+		mmc0 = &esdhc0;
+		mmc1 = &esdhc1;
+		i2c0 = &i2c0;
+		i2c1 = &i2c3;
+		i2c2 = &i2c4;
+		rtc0 = &rtc;
+		ethernet0 = &enetc0;
+		ethernet1 = &enetc1;
+		ethernet2 = &enetc2;
+		ethernet3 = &enetc6;
+	};
+
+	chosen {
+		stdout-path = &serial0;
+	};
+};
+
+&dspi2 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&enetc0 {
+	status = "okay";
+	phy-mode = "sgmii";
+	phy-handle = <&phy0>;
+};
+
+&enetc1 {
+	status = "disabled";
+};
+
+&enetc2 {
+	status = "disabled";
+};
+
+&enetc6 {
+	status = "disabled";
+};
+
+&esdhc0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&esdhc1 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+	bus-width = <8>;
+};
+
+&fspi {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+
+	flash@0 {
+		u-boot,dm-pre-reloc;
+		#address-cells = <1>;
+		#size-cells = <1>;
+		compatible = "jedec,spi-nor";
+		m25p,fast-read;
+		spi-max-frequency = <133000000>;
+		reg = <0>;
+		spi-rx-bus-width = <2>;
+		spi-tx-bus-width = <1>;
+	 };
+};
+
+&i2c0 {
+	status = "okay";
+
+	rtc: rtc@32 {
+		compatible = "microcrystal,rv8803";
+		reg = <0x32>;
+	};
+};
+
+&i2c3 {
+	status = "okay";
+};
+
+&i2c4 {
+	status = "okay";
+};
+
+&mdio0 {
+	status = "okay";
+
+	phy0: phy@5 {
+		reg = <5>;
+	};
+};
+
+&serial0 {
+	u-boot,dm-pre-reloc;
+	status = "okay";
+};
+
+&sysclk {
+	u-boot,dm-pre-reloc;
+};
+
+&usb1 {
+	status = "okay";
+};
+
+&usb2 {
+	status = "okay";
+};

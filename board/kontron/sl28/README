@@ -1,0 +1,63 @@
+Summary
+=======
+
+The Kontron SMARC-sAL28 board is a TSN-enabled dual-core ARM A72
+processor module with an on-chip 6-port TSN switch and a 3D GPU.
+
+
+Quickstart
+==========
+
+Compile U-Boot
+--------------
+
+ $ make kontron_sl28_defconfig
+ $ CROSS_COMPILE=aarch64-linux-gnu make
+
+Copy u-boot-with-spl.bin to a TFTP server.
+
+Install the bootloader on the board
+-----------------------------------
+
+Please note, this bootloader doesn't support the builtin watchdog (yet),
+therefore you have to disable it, see below. Otherwise you'll end up in
+the failsafe bootloader on every reset.
+
+ > tftp path/to/u-boot-with-spl.bin
+ > sf probe 0
+ > sf update $fileaddr 0x210000 $filesize
+
+The board is fully failsafe, you can't break anything. But since you've
+disabled the builtin watchdog you might have to manually enter failsafe
+mode by asserting the FORCE_RECOV# line during board reset.
+
+Disable the builtin watchdog
+----------------------------
+
+ - boot into the failsafe bootloader, either by asserting the
+   FORCE_RECOV# line or if you still have the original bootloader
+   installed you can use the command "wdt dev cpld_watchdog@4a; wdt
+   expire 1"
+ - in the failsafe bootloader use the "sl28 nvm" command to disable
+   the automatic start of the builtin watchdog:
+   > sl28 nvm 0008
+ - power-cycle the board
+
+
+Useful I2C tricks
+=================
+
+The board has a board management controller which is not supported in
+u-boot (yet). But you can use the i2c command to access it:
+
+ # reset into failsafe bootloader
+ > i2c mw 4a 5.1 0; i2c mw 4a 6.1 6b; i2c mw 4a 4.1 42
+
+ # read board management controller version
+ > i2c md 4a 3.1 1
+
+
+Vendor Documentation
+====================
+
+https://raw.githubusercontent.com/kontron/u-boot-smarc-sal28/master/board/kontron/sl28/README.md

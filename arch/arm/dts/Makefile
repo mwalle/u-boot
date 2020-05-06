@@ -383,6 +383,9 @@ dtb-$(CONFIG_FSL_LSCH3) += fsl-ls2080a-qds.dtb \
 	fsl-ls1088a-qds.dtb \
 	fsl-ls1088a-qds-21-x.dtb \
 	fsl-ls1088a-qds-29-x.dtb \
+	fsl-ls1028a-kontron-sl28.dtb \
+	fsl-ls1028a-kontron-sl28-var3.dtb \
+	fsl-ls1028a-kontron-sl28-var4.dtb \
 	fsl-ls1028a-rdb.dtb \
 	fsl-ls1028a-qds-duart.dtb \
 	fsl-ls1028a-qds-lpuart.dtb \

@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: GPL-2.0+
+/*
+ * Kontron SMARC-sAL28 device tree source (Single PHY version)
+ */
+
+/dts-v1/;
+
+#include "fsl-ls1028a-kontron-sl28.dts"
+
+/ {
+	u-boot,dm-pre-reloc;
+	model = "Kontron SMARC-sAL28 Board (Single PHY)";
+	compatible = "kontron,sl28-var3", "kontron,sl28", "fsl,ls1028a";
+};

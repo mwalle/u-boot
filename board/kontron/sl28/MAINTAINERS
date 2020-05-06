@@ -1,0 +1,6 @@
+Kontron SMARC-sAL28 board
+M:	Michael Walle <michael@walle.cc>
+S:	Maintained
+F:	board/kontron/sl28/
+F:	include/configs/kontron_sl28.h
+F:	configs/kontron_sl28_defconfig
