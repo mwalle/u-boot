@@ -32,7 +32,7 @@
 #define CONFIG_SYS_MEMTEST_END          0x9fffffff
 
 /* SMP */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+#define CPU_RELEASE_ADDR		secondary_boot_addr
 
 /* generic timer */
 #define COUNTER_FREQUENCY		25000000

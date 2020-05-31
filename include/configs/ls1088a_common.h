@@ -48,7 +48,7 @@
 /*
  * SMP Definitinos
  */
-#define CPU_RELEASE_ADDR		secondary_boot_func
+#define CPU_RELEASE_ADDR		secondary_boot_addr
 
 #ifdef CONFIG_PCI
 #define CONFIG_CMD_PCI
