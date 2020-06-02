@@ -48,6 +48,10 @@ int board_init(void)
 	gd->env_addr = (ulong)&default_environment[0];
 #endif
 
+#ifdef CONFIG_FSL_CAAM
+	sec_init();
+#endif
+
 	return 0;
 }
 
