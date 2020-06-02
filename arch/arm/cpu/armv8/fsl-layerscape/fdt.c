@@ -443,7 +443,7 @@ void ft_cpu_setup(void *blob, bd_t *bd)
 	unsigned int svr = gur_in32(&gur->svr);
 
 	/* delete crypto node if not on an E-processor */
-	if (!IS_E_PROCESSOR(svr))
+	if (!IS_ENABLED(CONFIG_ARCH_LS1028A) && !IS_E_PROCESSOR(svr))
 		fdt_fixup_crypto_node(blob, 0);
 #if CONFIG_SYS_FSL_SEC_COMPAT >= 4
 	else {
