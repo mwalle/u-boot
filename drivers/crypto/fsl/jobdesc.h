@@ -39,6 +39,8 @@ void inline_cnstr_jobdesc_blob_decap(uint32_t *desc, uint8_t *key_idnfr,
 				     uint8_t *enc_blob, uint8_t *plain_txt,
 				     uint32_t out_sz);
 
+void inline_cnstr_jobdesc_rng_deinstantiation(u32 *desc, int handle);
+
 void inline_cnstr_jobdesc_rng_instantiation(uint32_t *desc, int handle,
 					    int do_sk);
 
