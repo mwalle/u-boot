@@ -1272,6 +1272,7 @@ config SPL_YMODEM_SUPPORT
 config SPL_ATF
 	bool "Support ARM Trusted Firmware"
 	depends on ARM64
+	select SPL_LOAD_FIT if !SPL_LOAD_FIT_FULL
 	help
 	  ATF(ARM Trusted Firmware) is a component for ARM AArch64 which
 	  is loaded by SPL (which is considered as BL2 in ATF terminology).
