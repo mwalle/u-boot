@@ -16,7 +16,7 @@
 		ethernet3 = &enetc6;
 	};
 
-	binman {
+	binman: binman {
 		filename = "u-boot.rom";
 		pad-byte = <0xff>;
 
@@ -101,6 +101,40 @@
 		};
 	};
 };
+
+#ifdef CONFIG_SL28_SPL_LOADS_ATF_BL31
+&binman {
+	fit {
+		images {
+			bl31 {
+				description = "ARM Trusted Firmware (bl31)";
+				type = "firmware";
+				arch = "arm";
+				os = "arm-trusted-firmware";
+				compression = "none";
+				load = <0xfbe00000>;
+				entry = <0xfbe00000>;
+
+				blob-ext {
+					filename = "bl31.bin";
+				};
+			};
+		};
+
+		configurations {
+			conf-1 {
+				firmware = "bl31";
+			};
+			conf-2 {
+				firmware = "bl31";
+			};
+			conf-3 {
+				firmware = "bl31";
+			};
+		};
+	};
+};
+#endif
 
 &i2c0 {
 	rtc: rtc@32 {
