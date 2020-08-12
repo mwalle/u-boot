@@ -42,10 +42,11 @@ SECTIONS
 	}
 
 #ifdef CONFIG_ARMV8_PSCI
-	.__secure_start :
+	.__secure_start
 #ifndef CONFIG_ARMV8_SECURE_BASE
 		ALIGN(CONSTANT(COMMONPAGESIZE))
 #endif
+	:
 	{
 		KEEP(*(.__secure_start))
 	}
