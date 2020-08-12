@@ -1072,6 +1072,7 @@ static inline int check_psci(void)
 
 static void config_core_prefetch(void)
 {
+#if CONFIG_IS_ENABLED(ARMV8_SEC_FIRMWARE_SUPPORT)
 	char *buf = NULL;
 	char buffer[HWCONFIG_BUFFER_SIZE];
 	const char *prefetch_arg = NULL;
@@ -1105,6 +1106,7 @@ static void config_core_prefetch(void)
 			printf("Prefetch disable config passed for mask ");
 		printf("0x%x\n", mask);
 	}
+#endif
 }
 
 #ifdef CONFIG_PCIE_ECAM_GENERIC
