@@ -106,8 +106,13 @@
 u32 psci_get_target_pc(int cpu);
 u32 psci_get_context_id(int cpu);
 void psci_save(int cpu, u32 pc, u32 context_id);
-
 void psci_cpu_entry(void);
+
+u64 psci_get_target_pc_64(int cpu);
+u64 psci_get_context_id_64(int cpu);
+void psci_save_64(int cpu, u64 pc, u64 context_id);
+void psci_cpu_entry_64(void);
+
 int psci_get_cpu_id(void);
 void psci_cpu_off_common(void);
 
