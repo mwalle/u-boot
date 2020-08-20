@@ -29,6 +29,7 @@
 #define SCR_EL3_SMD_DIS		(1 << 7)  /* Secure Monitor Call disable     */
 #define SCR_EL3_RES1		(3 << 4)  /* Reserved, RES1                  */
 #define SCR_EL3_EA_EN		(1 << 3)  /* External aborts taken to EL3    */
+#define SCR_EL3_IRQ_EN		(1 << 1)  /* IRQ interrupts take to EL3      */
 #define SCR_EL3_NS_EN		(1 << 0)  /* EL0 and EL1 in Non-scure state  */
 
 /*
@@ -107,6 +108,12 @@
 #define SCTLR_EL1_ALIGN_DIS	(0 << 1)  /* Alignment check disabled         */
 #define SCTLR_EL1_MMU_DIS	(0)       /* MMU disabled                     */
 
+/*
+ * MPIDR_EL1 bits definitions
+ */
+#define MPIDR_EL1_AFF0		GENMASK(7, 0)
+#define MPIDR_EL1_AFF1		GENMASK(15, 8)
+
 #ifndef __ASSEMBLY__
 
 struct pt_regs;
@@ -168,6 +175,20 @@ static inline void set_sctlr(unsigned long val)
 		asm volatile("msr sctlr_el3, %0" : : "r" (val) : "cc");
 
 	asm volatile("isb");
+}
+
+static inline unsigned long get_scr_el3(void)
+{
+	unsigned long val;
+
+	asm volatile("mrs %0, scr_el3" : "=r" (val));
+
+	return val;
+}
+
+static inline void set_scr_el3(unsigned long val)
+{
+	asm volatile("msr scr_el3, %0" : : "r" (val));
 }
 
 static inline unsigned long read_mpidr(void)

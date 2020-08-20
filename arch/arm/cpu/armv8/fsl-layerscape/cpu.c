@@ -1130,6 +1130,7 @@ int arch_early_init_r(void)
 #if defined(CONFIG_SYS_FSL_ERRATUM_A009942) && defined(CONFIG_SYS_FSL_DDR)
 	erratum_a009942_check_cpo();
 #endif
+#ifndef CONFIG_ARMV8_PSCI
 	if (check_psci()) {
 		debug("PSCI: PSCI does not exist.\n");
 
@@ -1137,6 +1138,7 @@ int arch_early_init_r(void)
 		if (fsl_layerscape_wake_seconday_cores())
 			printf("Did not wake secondary cores\n");
 	}
+#endif
 
 	config_core_prefetch();
 

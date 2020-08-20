@@ -9,6 +9,7 @@
 #include <linux/linkage.h>
 #include <asm/psci.h>
 #include <asm/secure.h>
+#include <asm/macro.h>
 
 /* Default PSCI function, return -1, Not Implemented */
 #define PSCI_DEFAULT(__fn) \
@@ -207,21 +208,25 @@ handle_smc64:
  * used for the return value, while in this PSCI environment, X0 usually holds
  * the SMC function identifier, so X0 should be saved by caller function.
  */
-ENTRY(psci_get_cpu_id)
+ENTRY(__psci_get_cpu_id)
 #ifdef CONFIG_ARMV8_PSCI_CPUS_PER_CLUSTER
-	mrs	x9, MPIDR_EL1
-	ubfx	x9, x9, #8, #8
+	ubfx	x9, x0, #8, #8
 	ldr	x10, =CONFIG_ARMV8_PSCI_CPUS_PER_CLUSTER
 	mul	x9, x10, x9
 #else
 	mov	x9, xzr
 #endif
-	mrs	x10, MPIDR_EL1
-	ubfx	x10, x10, #0, #8
+	ubfx	x10, x0, #0, #8
 	add	x0, x10, x9
 	ret
-ENDPROC(psci_get_cpu_id)
+ENDPROC(__psci_get_cpu_id)
 .weak psci_get_cpu_id
+
+ENTRY(psci_get_cpu_id)
+	mrs	x0, MPIDR_EL1
+	/* tail call */
+	b __psci_get_cpu_id
+ENDPROC(psci_get_cpu_id)
 
 /* CPU ID input in x0, stack top output in x0*/
 LENTRY(psci_get_cpu_stack_top)
@@ -232,6 +237,13 @@ LENTRY(psci_get_cpu_stack_top)
 ENDPROC(psci_get_cpu_stack_top)
 
 unhandled_exception:
+	//mov	w1, 0x01000000
+	//mov	x2, 0x2310000
+	//str w1, [x2]
+	//nop
+	//nop
+	//nop
+	//str wzr, [x2]
 	b	unhandled_exception	/* simply dead loop */
 
 handle_sync:
@@ -323,9 +335,73 @@ ENTRY(psci_setup_vectors)
 	ret
 ENDPROC(psci_setup_vectors)
 
-ENTRY(psci_arch_init)
+ENTRY(psci_setup_generic_timer)
+#ifdef COUNTER_FREQUENCY
+	ldr	x0, =COUNTER_FREQUENCY
+	msr	cntfrq_el0, x0			/* Initialize CNTFRQ */
+#endif
 	ret
-ENDPROC(psci_arch_init)
-.weak psci_arch_init
+ENDPROC(psci_setup_generic_timer)
+
+ENTRY(psci_enable_smp)
+#ifdef CONFIG_ARMV8_SET_SMPEN
+	mrs     x0, S3_1_c15_c2_1               /* cpuectlr_el1 */
+	orr     x0, x0, #0x40			/* SMPEN */
+	msr     S3_1_c15_c2_1, x0
+	isb
+#endif
+	ret
+ENDPROC(psci_enable_smp)
+
+ENTRY(psci_gic_setup)
+	ret
+ENDPROC(psci_gic_setup)
+.weak psci_gic_setup
+
+ENTRY(psci_cpu_entry_64)
+	mrs	x0, SCR_EL3
+	orr	x0, x0, #0xf			/* SCR_EL3.NS|IRQ|FIQ|EA */
+	msr	SCR_EL3, x0
+	msr	CPTR_EL3, xzr			/* Enable FP/SIMD */
+	isb
+
+	bl	psci_enable_smp
+
+	/* setup the stack pointer */
+	bl	psci_get_cpu_id
+	mov	x19, x0				/* CPU ID => x19 */
+	bl	psci_get_cpu_stack_top		/* stack top => x0 */
+	mov	x9, #1
+	msr	spsel, x9
+	mov	sp, x0
+
+	bl	psci_setup_vectors
+	bl	psci_setup_generic_timer
+	bl	psci_gic_setup
+
+	/* mark cpu as online */
+	mov	x0, x19				/* CPU ID => x0 */
+	mov	x1, #PSCI_AFFINITY_LEVEL_ON
+	bl	psci_set_affinity_level
+
+	/* finally jump to the entry point */
+	mov	x0, x19				/* CPU ID => x0 */
+	bl	psci_get_target_pc_64		/* target PC => x0 */
+	mov	x20, x0				/* target PC => x20 */
+	mov	x0, x19				/* CPU ID => x0 */
+	bl	psci_get_context_id_64		/* context id => x0 */
+
+	mov	x1, xzr
+	mov	x2, xzr
+	mov	x3, xzr
+
+#ifdef CONFIG_ARMV8_SWITCH_TO_EL1
+	adr	x7, 0f
+	armv8_switch_to_el2_m x7, x9, x10
+0:	armv8_switch_to_el1_m x20, x9, x10
+#else
+	armv8_switch_to_el2_m x20, x9, x10
+#endif
+ENDPROC(psci_cpu_entry_64)
 
 .popsection
