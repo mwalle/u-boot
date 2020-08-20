@@ -95,6 +95,8 @@
 #define PSCI_AFFINITY_LEVEL_OFF		1
 #define PSCI_AFFINITY_LEVEL_ON_PENDING	2
 
+#define PSCI_FLAGS_CORE_POWERED_UP	BIT(7)
+
 #define PSCI_RESET2_TYPE_VENDOR_SHIFT	31
 #define PSCI_RESET2_TYPE_VENDOR		BIT(PSCI_RESET2_TYPE_VENDOR_SHIFT)
 
@@ -114,11 +116,24 @@ void psci_save_64(int cpu, u64 pc, u64 context_id);
 void psci_cpu_entry_64(void);
 
 int psci_get_cpu_id(void);
+int __psci_get_cpu_id(unsigned long mpidr);
+u8 psci_get_affinity_level(int cpu);
+void psci_set_affinity_level(int cpu, u8 affinity_level);
+
 void psci_cpu_off_common(void);
 
 int psci_update_dt(void *fdt);
 void psci_board_init(void);
 int fdt_psci(void *fdt);
+
+void psci_release_cpu_64(u64 mpidr);
+void psci_power_down_cpu_64(u64 mpidr);
+
+/* For the ARMv8-A generic PSCI implementation */
+void psci_gic_pre_off(u64 mpidr);
+void psci_gic_post_off(u64 mpidr);
+void psci_gic_kick_cpu_core(u64 mpidr);
+void psci_arch_release_cpu_64(u64 mpidr);
 
 void psci_v7_flush_dcache_all(void);
 #endif /* ! __ASSEMBLY__ */

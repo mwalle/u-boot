@@ -77,6 +77,7 @@
 #define GICR_ISACTIVERn		0x0300
 #define GICR_ICACTIVERn		0x0380
 #define GICR_IPRIORITYRn	0x0400
+#define GICR_IPRIORITYR(n)	(0x0400 + (n) * 4)
 #define GICR_ICFGR0		0x0c00
 #define GICR_ICFGR1		0x0c04
 #define GICR_IGROUPMODRn	0x0d00
