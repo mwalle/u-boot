@@ -1,5 +1,36 @@
 menu "Watchdog Timer Support"
 
+choice
+	prompt "Watchdog behavior"
+	default WATCHDOG_SUPERVISE_U_BOOT if EFI_LOADER
+	default WATCHDOG_SUPERVISE_OS if !EFI_LOADER
+	depends on WDT
+
+config WATCHDOG_SUPERVISE_NOTHING
+	bool "Supervise nothing"
+	help
+	  No watchdog will be started.
+
+config WATCHDOG_SUPERVISE_U_BOOT
+	bool "Supervise U-Boot only"
+	help
+	  Upon U-Boot startup the first watchdog will be started automatically
+	  and stopped as soon as an operating system is booted.
+
+config WATCHDOG_SUPERVISE_OS
+	bool "Supervise U-boot and operating system"
+	help
+	  Upon U-Boot startup the first watchdog will be started automatically
+	  and kept running even after booting the operating system.
+	  Be aware, that the operating system needs to service the watchdog!
+
+	  Additionally, this is not UEFI compliant because:
+	   - the timeout won't be set to 5 minutes before starting the OS and
+	   - the watchdog timer isn't stopped after the OS calls
+	     ExitBootServices().
+
+endchoice
+
 config WATCHDOG
 	bool "Enable U-Boot watchdog reset"
 	depends on !HW_WATCHDOG

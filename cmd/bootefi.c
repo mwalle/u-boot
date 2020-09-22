@@ -24,6 +24,7 @@
 #include <memalign.h>
 #include <asm-generic/sections.h>
 #include <linux/linkage.h>
+#include <wdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -320,6 +321,9 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 	efi_uintn_t exit_data_size = 0;
 	u16 *exit_data = NULL;
 
+	if (IS_ENABLED(CONFIG_WATCHDOG_SUPERVISE_U_BOOT))
+		stop_watchdog();
+
 	/* Call our payload! */
 	ret = EFI_CALL(efi_start_image(handle, &exit_data_size, &exit_data));
 	if (ret != EFI_SUCCESS) {
@@ -332,6 +336,9 @@ static efi_status_t do_bootefi_exec(efi_handle_t handle, void *load_options)
 	}
 
 	efi_restore_gd();
+
+	if (IS_ENABLED(CONFIG_WATCHDOG_SUPERVISE_U_BOOT))
+		start_watchdog();
 
 	free(load_options);
 

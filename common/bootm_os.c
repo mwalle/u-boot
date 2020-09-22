@@ -19,6 +19,7 @@
 #include <mapmem.h>
 #include <vxworks.h>
 #include <tee/optee.h>
+#include <wdt.h>
 
 DECLARE_GLOBAL_DATA_PTR;
 
@@ -612,6 +613,10 @@ int boot_selected_os(int argc, char *const argv[], int state,
 {
 	arch_preboot_os();
 	board_preboot_os();
+
+	if (IS_ENABLED(CONFIG_WATCHDOG_SUPERVISE_U_BOOT))
+		stop_watchdog();
+
 	boot_fn(state, argc, argv, images);
 
 	/* Stand-alone may return when 'autostart' is 'no' */

@@ -16,6 +16,7 @@
 #include <mapmem.h>
 #include <search.h>
 #include <linux/ctype.h>
+#include <wdt.h>
 
 #define BS systab.boottime
 
@@ -1131,6 +1132,9 @@ static int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 	ret = efi_bootmgr_load(&image, &load_options);
 	printf("efi_bootmgr_load() returned: %ld\n", ret & ~EFI_ERROR_MASK);
 
+	if (IS_ENABLED(CONFIG_WATCHDOG_SUPERVISE_U_BOOT))
+		stop_watchdog();
+
 	/* We call efi_start_image() even if error for test purpose. */
 	ret = EFI_CALL(efi_start_image(image, &exit_data_size, &exit_data));
 	printf("efi_start_image() returned: %ld\n", ret & ~EFI_ERROR_MASK);
@@ -1138,6 +1142,9 @@ static int do_efi_test_bootmgr(struct cmd_tbl *cmdtp, int flag,
 		efi_free_pool(exit_data);
 
 	efi_restore_gd();
+
+	if (IS_ENABLED(CONFIG_WATCHDOG_SUPERVISE_U_BOOT))
+		start_watchdog();
 
 	free(load_options);
 	return CMD_RET_SUCCESS;

@@ -22,11 +22,10 @@ DECLARE_GLOBAL_DATA_PTR;
  * hw_margin_ms property.
  */
 static ulong reset_period = 1000;
+static ulong wdt_timeout = WATCHDOG_TIMEOUT_SECS;
 
 int initr_watchdog(void)
 {
-	u32 timeout = WATCHDOG_TIMEOUT_SECS;
-
 	/*
 	 * Init watchdog: This will call the probe function of the
 	 * watchdog driver, enabling the use of the device
@@ -42,19 +41,37 @@ int initr_watchdog(void)
 	}
 
 	if (CONFIG_IS_ENABLED(OF_CONTROL) && !CONFIG_IS_ENABLED(OF_PLATDATA)) {
-		timeout = dev_read_u32_default(gd->watchdog_dev, "timeout-sec",
-					       WATCHDOG_TIMEOUT_SECS);
+		wdt_timeout = dev_read_u32_default(gd->watchdog_dev,
+						   "timeout-sec",
+						   WATCHDOG_TIMEOUT_SECS);
 		reset_period = dev_read_u32_default(gd->watchdog_dev,
 						    "hw_margin_ms",
 						    4 * reset_period) / 4;
 	}
 
-	wdt_start(gd->watchdog_dev, timeout * 1000, 0);
-	gd->flags |= GD_FLG_WDT_READY;
-	printf("WDT:   Started with%s servicing (%ds timeout)\n",
-	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out", timeout);
+	start_watchdog();
+	printf("WDT:   Started with%s servicing (supervising %s, %lus timeout)\n",
+	       IS_ENABLED(CONFIG_WATCHDOG) ? "" : "out",
+	       IS_ENABLED(CONFIG_WATCHDOG_SUPERVISE_U_BOOT) ? "U-Boot" : "OS",
+	       wdt_timeout);
 
 	return 0;
+}
+
+void start_watchdog(void)
+{
+	if (gd->watchdog_dev) {
+		wdt_start(gd->watchdog_dev, wdt_timeout * 1000, 0);
+		gd->flags |= GD_FLG_WDT_READY;
+	}
+}
+
+void stop_watchdog(void)
+{
+	if (gd->watchdog_dev) {
+		wdt_stop(gd->watchdog_dev);
+		gd->flags &= ~GD_FLG_WDT_READY;
+	}
 }
 
 int wdt_start(struct udevice *dev, u64 timeout_ms, ulong flags)

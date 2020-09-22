@@ -639,9 +639,9 @@ void board_init_r(gd_t *dummy1, ulong dummy2)
 	spl_board_init();
 #endif
 
-#if defined(CONFIG_SPL_WATCHDOG_SUPPORT) && CONFIG_IS_ENABLED(WDT)
-	initr_watchdog();
-#endif
+	if (IS_ENABLED(CONFIG_SPL_WATCHDOG_SUPPORT) &&
+	    !IS_ENABLED(CONFIG_WATCHDOG_SUPERVISE_NOTHING))
+		initr_watchdog();
 
 	if (IS_ENABLED(CONFIG_SPL_OS_BOOT) || CONFIG_IS_ENABLED(HANDOFF) ||
 	    IS_ENABLED(CONFIG_SPL_ATF))

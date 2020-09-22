@@ -105,6 +105,23 @@ struct wdt_ops {
 	int (*expire_now)(struct udevice *dev, ulong flags);
 };
 
+/*
+ * Initialize and start the global watchdog timer.
+ *
+ * @return: 0 if OK, -ve on error
+ */
 int initr_watchdog(void);
+
+/*
+ * (Re)start the global watchdog timer. Used after returning from an EFI or
+ * application image.
+ */
+void start_watchdog(void);
+
+/*
+ * Stop the global watchdog timer. Used before handing control to an EFI image
+ * or operating system.
+ */
+void stop_watchdog(void);
 
 #endif  /* _WDT_H_ */
