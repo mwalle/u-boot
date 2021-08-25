@@ -123,6 +123,10 @@
 	status = "okay";
 };
 
+&soc {
+	u-boot,dm-pre-reloc;
+};
+
 &usb1 {
 	status = "okay";
 };
