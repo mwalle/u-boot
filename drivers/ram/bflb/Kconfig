@@ -1,0 +1,13 @@
+config RAM_BFLB
+	bool "Ram drivers support for Bouffalolab SoCs"
+	depends on RAM && RISCV
+	default y
+	help
+	  This enables support for ram drivers of Bouffalolab SoCs.
+
+config BFLB_PSRAM
+	bool "Bouffalolab PSRAM driver"
+	depends on RAM_BFLB
+	default y if TARGET_SIPEED_M1SDOCK
+	help
+	  This enables PSRAM support for the platforms based on Bouffalolab SoC.

@@ -1,0 +1,14 @@
+// SPDX-License-Identifier: (GPL-2.0 OR MIT)
+/*
+ * Copyright (C) Michael Walle <michael@walle.cc>
+ */
+
+/ {
+	soc {
+		dmc: dmc@3000f000 {
+			compatible = "bouffalolab,bl808-psram-uhs";
+			reg = <0x3000f000 0x1000>;
+			u-boot,dm-pre-reloc;
+		};
+	};
+};

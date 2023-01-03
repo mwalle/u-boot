@@ -13,6 +13,13 @@ phys_size_t get_effective_memsize(void)
 
 int board_early_init_f(void)
 {
+	struct udevice *dev;
+	int ret;
+
+	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
+	if (ret)
+		panic("DRAM init failed: %d\n", ret);
+
 	return 0;
 }
 

@@ -97,6 +97,7 @@ config IMXRT_SDRAM
 	  This driver is for the sdram memory interface with the SEMC.
 
 source "drivers/ram/aspeed/Kconfig"
+source "drivers/ram/bflb/Kconfig"
 source "drivers/ram/rockchip/Kconfig"
 source "drivers/ram/sifive/Kconfig"
 source "drivers/ram/stm32mp1/Kconfig"
