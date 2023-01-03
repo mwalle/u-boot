@@ -270,6 +270,14 @@ config DEBUG_UART_BCM6345
 	  will need to provide parameters to make this work. The driver will
 	  be available until the real driver model serial is running.
 
+config DEBUG_UART_BFLB
+	bool "Bouffalolab UART"
+	depends on BFLB_SERIAL
+	help
+	  Select this to enable a debug UART using the serial_bflb driver. You
+	  will need to provide parameters to make this work. The driver will
+	  be available until the real driver-model serial is running.
+
 config DEBUG_UART_NS16550
 	bool "ns16550"
 	depends on SYS_NS16550
@@ -649,6 +657,12 @@ config BCM6345_SERIAL
 	depends on DM_SERIAL
 	help
 	  Select this to enable UART on BCM6345 SoCs.
+
+config BFLB_SERIAL
+	bool "Bouffalolab UART support"
+	depends on DM_SERIAL
+	help
+	  This driver supports the Bouffalolab UART. If unsure say N.
 
 config COREBOOT_SERIAL
 	bool "Coreboot UART support"

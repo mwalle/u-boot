@@ -1,0 +1,30 @@
+# SPDX-License-Identifier: GPL-2.0+
+# Copyright (C) 2023 Michael Walle <michael@walle.cc>
+
+if TARGET_SIPEED_M1SDOCK
+
+config SYS_BOARD
+	default "m1sdock"
+
+config SYS_VENDOR
+	default "sipeed"
+
+config SYS_CPU
+	default "generic"
+
+config SYS_CONFIG_NAME
+	default "sipeed-m1sdock"
+
+config TEXT_BASE
+	default 0x80000000
+
+config DEFAULT_DEVICE_TREE
+	default "bl808-sipeed-m1s-dock"
+
+config NR_CPUS
+	default 1
+
+config BOARD_SPECIFIC_OPTIONS
+	def_bool y
+	select GENERIC_RISCV
+endif

@@ -75,6 +75,7 @@ obj-$(CONFIG_MT7620_SERIAL) += serial_mt7620.o
 obj-$(CONFIG_HTIF_CONSOLE) += serial_htif.o
 obj-$(CONFIG_SIFIVE_SERIAL) += serial_sifive.o
 obj-$(CONFIG_XEN_SERIAL) += serial_xen.o
+obj-$(CONFIG_BFLB_SERIAL) += serial_bflb.o
 
 ifndef CONFIG_SPL_BUILD
 obj-$(CONFIG_USB_TTY) += usbtty.o
