@@ -118,45 +118,45 @@
 DECLARE_GLOBAL_DATA_PTR;
 
 struct bl808_psram_regs {
-	uint32_t basic;		/* 0x000*/
-	uint32_t cmd;
-	uint32_t fifo_thre;
-	uint32_t manual;
-	uint32_t auto_fresh_1;
-	uint32_t auto_fresh_2;
-	uint32_t auto_fresh_3;
-	uint32_t auto_fresh_4;
-	uint32_t psram_configure;
-	uint32_t psram_status;
-	uint32_t reserved0[2];
-	uint32_t timing_ctrl;	/* 0x030 */
-	uint32_t rsvd_reg;
-	uint32_t reserved1[34];
-	uint32_t dbg_sel;	/* 0x0c0 */
-	uint32_t reserved2[11];
-	uint32_t dummy_reg;	/* 0x0f0 */
-	uint32_t reserved3[3];
-	uint32_t phy_cfg_00;	/* 0x100 */
-	uint32_t phy_cfg_04;
-	uint32_t phy_cfg_08;
-	uint32_t phy_cfg_0c;
-	uint32_t phy_cfg_10;
-	uint32_t phy_cfg_14;
-	uint32_t phy_cfg_18;
-	uint32_t phy_cfg_1c;
-	uint32_t phy_cfg_20;
-	uint32_t phy_cfg_24;
-	uint32_t phy_cfg_28;
-	uint32_t phy_cfg_2c;
-	uint32_t phy_cfg_30;
-	uint32_t phy_cfg_34;
-	uint32_t phy_cfg_38;
-	uint32_t phy_cfg_3c;
-	uint32_t phy_cfg_40;
-	uint32_t phy_cfg_44;
-	uint32_t phy_cfg_48;
-	uint32_t phy_cfg_4c;
-	uint32_t phy_cfg_50;
+	u32 basic;		/* 0x000*/
+	u32 cmd;
+	u32 fifo_thre;
+	u32 manual;
+	u32 auto_fresh_1;
+	u32 auto_fresh_2;
+	u32 auto_fresh_3;
+	u32 auto_fresh_4;
+	u32 psram_configure;
+	u32 psram_status;
+	u32 reserved0[2];
+	u32 timing_ctrl;	/* 0x030 */
+	u32 rsvd_reg;
+	u32 reserved1[34];
+	u32 dbg_sel;	/* 0x0c0 */
+	u32 reserved2[11];
+	u32 dummy_reg;	/* 0x0f0 */
+	u32 reserved3[3];
+	u32 phy_cfg_00;	/* 0x100 */
+	u32 phy_cfg_04;
+	u32 phy_cfg_08;
+	u32 phy_cfg_0c;
+	u32 phy_cfg_10;
+	u32 phy_cfg_14;
+	u32 phy_cfg_18;
+	u32 phy_cfg_1c;
+	u32 phy_cfg_20;
+	u32 phy_cfg_24;
+	u32 phy_cfg_28;
+	u32 phy_cfg_2c;
+	u32 phy_cfg_30;
+	u32 phy_cfg_34;
+	u32 phy_cfg_38;
+	u32 phy_cfg_3c;
+	u32 phy_cfg_40;
+	u32 phy_cfg_44;
+	u32 phy_cfg_48;
+	u32 phy_cfg_4c;
+	u32 phy_cfg_50;
 };
 
 struct bflb_psram_info {
@@ -171,33 +171,33 @@ struct bflb_psram_info {
 };
 
 struct uhs_phy_cfg {
-	uint32_t wl_cen_ana:3;
-	uint32_t wl_dq_dig:3;
-	uint32_t wl_dq_ana:3;
-	uint32_t wl_dig:3;
-	uint32_t wl_ana:3;
-	uint32_t rl_dig:4;
-	uint32_t rl_ana:3;
-	//uint32_t oe_timer:2;
+	u32 wl_cen_ana:3;
+	u32 wl_dq_dig:3;
+	u32 wl_dq_ana:3;
+	u32 wl_dig:3;
+	u32 wl_ana:3;
+	u32 rl_dig:4;
+	u32 rl_ana:3;
+	//u32 oe_timer:2;
 
-	uint32_t timer_dqs_start:8;
-	uint32_t timer_dqs_array_stop:8;
-	uint32_t timer_array_write:8;
-	uint32_t timer_array_read:8;
+	u32 timer_dqs_start:8;
+	u32 timer_dqs_array_stop:8;
+	u32 timer_array_write:8;
+	u32 timer_array_read:8;
 
-	uint32_t timer_auto_refresh:8;
-	uint32_t timer_reg_read:8;
-	uint32_t timer_reg_write:8;
-	uint32_t timer_dqs_stop:8;
+	u32 timer_auto_refresh:8;
+	u32 timer_reg_read:8;
+	u32 timer_reg_write:8;
+	u32 timer_dqs_stop:8;
 
-	uint32_t timer_self_refresh1_in:8;
-	uint32_t timer_self_refresh1_exit:8;
-	uint32_t timer_global_rst:14;
+	u32 timer_self_refresh1_in:8;
+	u32 timer_self_refresh1_exit:8;
+	u32 timer_global_rst:14;
 
-	uint32_t timer_array_read_busy:8;
-	uint32_t timer_array_write_busy:8;
-	uint32_t timer_reg_read_busy:8;
-	uint32_t timer_reg_write_busy:8;
+	u32 timer_array_read_busy:8;
+	u32 timer_array_write_busy:8;
+	u32 timer_reg_read_busy:8;
+	u32 timer_reg_write_busy:8;
 };
 
 /* cfg_30..44 = 0f0a1323 0b030404 050e0419 0a6a1c1c 0711070e */
@@ -486,21 +486,21 @@ static void config_uhs_phy(struct bflb_psram_info *priv)
 
 static void glb_config_uhs_pll(void)
 {
-	uint32_t *glb_uhs_pll_cfg0 = (void*)0x200007d0;
+	u32 *glb_uhs_pll_cfg0 = (void*)0x200007d0;
 #define UHS_PLL_CFG0_SDM_RSTB BIT(0)
 #define UHS_PLL_CFG0_FBDV_RSTB BIT(2)
 #define UHS_PLL_CFG0_PU_UHSPLL_SFREG BIT(9)
 #define UHS_PLL_CFG0_PU_UHSPLL BIT(10)
-	uint32_t *glb_uhs_pll_cfg1 = (void*)0x200007d4;
+	u32 *glb_uhs_pll_cfg1 = (void*)0x200007d4;
 #define UHS_PLL_CFG1_EVEN_DIV_RATIO(x) (((x) & 0x7f) << 0)
 #define UHS_PLL_CFG1_EVEN_DIV_EN BIT(7)
 #define UHS_PLL_CFG1_REFDIV_RATIO(x) (((x) & 0xf) << 8)
 #define UHS_PLL_CFG1_REFCLK_SEL(x) (((x) & 0x3) << 16)
-	uint32_t *glb_uhs_pll_cfg4 = (void*)0x200007e0;
+	u32 *glb_uhs_pll_cfg4 = (void*)0x200007e0;
 #define UHS_PLL_CFG4_SEL_SAMPLE_CLK(x) (((x) & 0x3) << 0)
-	uint32_t *glb_uhs_pll_cfg5 = (void*)0x200007e4;
+	u32 *glb_uhs_pll_cfg5 = (void*)0x200007e4;
 #define UHS_PLL_CFG5_VCO_SPEED(x) (((x) & 0x7) << 0)
-	uint32_t *glb_uhs_pll_cfg6 = (void*)0x200007e8;
+	u32 *glb_uhs_pll_cfg6 = (void*)0x200007e8;
 #define UHS_PLL_CFG6_SDMIN(x) (((x) & 0x7ffff) << 0)
 	int freq = 1400;
 	int xtal_type = 4;
@@ -554,7 +554,7 @@ static void glb_config_uhs_pll(void)
 
 void glb_power_up_ldo12uhs(void)
 {
-	uint32_t *glb_ldo12uhs = (void*)0x200006d0;
+	u32 *glb_ldo12uhs = (void*)0x200006d0;
 #define LDO12UHS_PU_LDO12UHS BIT(0)
 #define LDO12UHS_VOUT_SEL(x) (((x) & 0xf) << 20)
 
@@ -644,7 +644,7 @@ static void psram_uhs_init(struct bflb_psram_info *priv)
 	struct bl808_psram_regs *regs = priv->regs;
 	int pck_freq = priv->pck_freq;
 	int pck_t_div;
-	uint32_t timing;
+	u32 timing;
 
 	if (pck_freq > 2300)
 		panic("wrong pck_freq");
@@ -936,8 +936,7 @@ static ulong mem_test_alt(vu_long *buf, ulong start_addr, ulong end_addr,
 
 	return errs;
 }
-=======
->>>>>>> f30af98caf (psram cleanup)
+
 static int bflb_psram_probe(struct udevice *dev)
 {
 	struct bflb_psram_info *priv = dev_get_priv(dev);
@@ -949,6 +948,9 @@ printf("%s\n", __func__);
 	priv->info.size = gd->ram_size;
 
 	priv->regs = dev_read_addr_ptr(dev);
+	if (!priv->regs)
+		return -EINVAL;
+
 	priv->pck_freq = 1400;
 	priv->mem_size = 0x3f;
 	priv->page_size = 0x0b;
