@@ -122,6 +122,14 @@ config BCMSTB_SPI
 	  be used to access the SPI flash on platforms embedding this
 	  Broadcom SPI core.
 
+config BFLB_SFLASH
+	bool "Bouffalolab Serial Flash driver"
+	depends on SPI_MEM
+	help
+	  Enable the Bouffalolab SF driver. This driver can be used
+	  to access the SPI NOR flash on platforms embedding this
+	  Bouffalolab SPI core.
+
 config CORTINA_SFLASH
 	bool "Cortina-Access Serial Flash controller driver"
 	depends on DM_SPI && SPI_MEM

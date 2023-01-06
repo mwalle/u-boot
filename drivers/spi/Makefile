@@ -27,6 +27,7 @@ obj-$(CONFIG_ATMEL_SPI) += atmel_spi.o
 obj-$(CONFIG_BCM63XX_HSSPI) += bcm63xx_hsspi.o
 obj-$(CONFIG_BCM63XX_SPI) += bcm63xx_spi.o
 obj-$(CONFIG_BCMSTB_SPI) += bcmstb_spi.o
+obj-$(CONFIG_BFLB_SFLASH) += bflb_sflash.o
 obj-$(CONFIG_CF_SPI) += cf_spi.o
 obj-$(CONFIG_CORTINA_SFLASH) += ca_sflash.o
 obj-$(CONFIG_DAVINCI_SPI) += davinci_spi.o
