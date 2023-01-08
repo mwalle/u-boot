@@ -1,11 +1,13 @@
 // SPDX-License-Identifier: (GPL-2.0+ or MIT)
 /*
+ * Copyright (c) 2023 Michael Walle <michael@walle.cc>
  * Copyright (C) 2022 Jisheng Zhang <jszhang@kernel.org>
  */
 
 /dts-v1/;
 
 #include "bl808.dtsi"
+#include <dt-bindings/pinctrl/bl808-pinctrl.h>
 
 / {
 	compatible = "sipeed,m1s", "bouffalolab,bl808";
@@ -16,10 +18,35 @@
 	};
 };
 
+&pinctrl {
+	sflash_pins: sflash-pins {
+		clk-cs-pins {
+			pinmux = <BL808_PINMUX(34, BL808_FUNC_SFLASH)>,
+				 <BL808_PINMUX(35, BL808_FUNC_SFLASH)>;
+			bias-pull-up;
+			input-disable;
+			output-enable;
+			drive-strength-microamp = <9600>;
+		};
+
+		data-pins {
+			pinmux = <BL808_PINMUX(36, BL808_FUNC_SFLASH)>,
+				 <BL808_PINMUX(37, BL808_FUNC_SFLASH)>,
+				 <BL808_PINMUX(38, BL808_FUNC_SFLASH)>,
+				 <BL808_PINMUX(39, BL808_FUNC_SFLASH)>;
+			drive-strength-microamp = <9600>;
+			bias-pull-up;
+			input-enable;
+		};
+	};
+};
+
 &sflash {
-	status = "okay";
 	#address-cells = <1>;
 	#size-cells = <0>;
+	pinctrl-0 = <&sflash_pins>;
+	pinctrl-names = "default";
+	status = "okay";
 
 	spi-flash@0 {
 		compatible = "jedec,spi-nor";

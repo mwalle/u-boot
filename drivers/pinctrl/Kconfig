@@ -202,6 +202,16 @@ config PINCTRL_AT91PIO4
 	  This option is to enable the AT91 pinctrl driver for AT91 PIO4
 	  controller which is available on SAMA5D2 SoC.
 
+config PINCTRL_BL808
+	bool "Bouffalolab BL808 pinctrl driver"
+	depends on DM && PINCTRL_GENERIC
+	help
+	  Supports pin multiplexing control the Bouffalolab BL808 SoC.
+
+	  The driver is controlled by a device tree node which contains both
+	  the GPIO definitions and pin control functions for each available
+	  multiplex function.
+
 config PINCTRL_INTEL
 	bool "Standard Intel pin-control and pin-mux driver"
 	help

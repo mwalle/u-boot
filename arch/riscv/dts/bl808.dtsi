@@ -53,8 +53,15 @@
 		#size-cells = <1>;
 
 		glb: glb@20000000 {
-			compatible = "bouffalolab,bl808-glb";
+			compatible = "bouffalolab,bl808-glb", "syscon", "simple-mfd";
 			reg = <0x20000000 0x1000>;
+			#address-cells = <1>;
+			#size-cells = <1>;
+
+			pinctrl: pinctrl@200008c4 {
+				compatible = "bouffalolab,bl808-pinctrl";
+				reg = <0x200008c4 0x100>;
+			};
 		};
 
 		uart0: serial@2000a000 {
