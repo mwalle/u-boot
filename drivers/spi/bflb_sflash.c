@@ -293,13 +293,6 @@ static const struct dm_spi_ops bflb_sflash_ops = {
 
 static void pinmux_init(void)
 {
-	writel(0x40400256, (void*)0x2000094c);
-	writel(0x40400256, (void*)0x20000950);
-	writel(0x40400217, (void*)0x20000954);
-	writel(0x40400217, (void*)0x20000958);
-	writel(0x40400217, (void*)0x2000095c);
-	writel(0x40400217, (void*)0x20000960);
-
 	writel(0x900, (void*)0x20000510);
 	writel(0x001, (void*)0x2000b070);
 }
