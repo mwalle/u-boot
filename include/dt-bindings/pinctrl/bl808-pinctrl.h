@@ -12,18 +12,19 @@
 #define BL808_FUNC_PDM				4
 #define BL808_FUNC_I2C0				5
 #define BL808_FUNC_I2C1				6
-#define BL808_FUNC_UART0_RTS			(7 |  (0 << 8))
-#define BL808_FUNC_UART0_CTS			(7 |  (1 << 8))
-#define BL808_FUNC_UART0_TX			(7 |  (2 << 8))
-#define BL808_FUNC_UART0_RX			(7 |  (3 << 8))
-#define BL808_FUNC_UART1_RTS			(7 |  (4 << 8))
-#define BL808_FUNC_UART1_CTS			(7 |  (5 << 8))
-#define BL808_FUNC_UART1_TX			(7 |  (6 << 8))
-#define BL808_FUNC_UART1_RX			(7 |  (7 << 8))
-#define BL808_FUNC_UART2_RTS			(7 |  (8 << 8))
-#define BL808_FUNC_UART2_CTS			(7 |  (9 << 8))
-#define BL808_FUNC_UART2_TX			(7 | (10 << 8))
-#define BL808_FUNC_UART2_RX			(7 | (11 << 8))
+#define BL808_FUNC_UART				7
+#define BL808_FUNC_UART0_RTS			(BL808_FUNC_UART |  (0 << 8))
+#define BL808_FUNC_UART0_CTS			(BL808_FUNC_UART |  (1 << 8))
+#define BL808_FUNC_UART0_TX			(BL808_FUNC_UART |  (2 << 8))
+#define BL808_FUNC_UART0_RX			(BL808_FUNC_UART |  (3 << 8))
+#define BL808_FUNC_UART1_RTS			(BL808_FUNC_UART |  (4 << 8))
+#define BL808_FUNC_UART1_CTS			(BL808_FUNC_UART |  (5 << 8))
+#define BL808_FUNC_UART1_TX			(BL808_FUNC_UART |  (6 << 8))
+#define BL808_FUNC_UART1_RX			(BL808_FUNC_UART |  (7 << 8))
+#define BL808_FUNC_UART2_RTS			(BL808_FUNC_UART |  (8 << 8))
+#define BL808_FUNC_UART2_CTS			(BL808_FUNC_UART |  (9 << 8))
+#define BL808_FUNC_UART2_TX			(BL808_FUNC_UART | (10 << 8))
+#define BL808_FUNC_UART2_RX			(BL808_FUNC_UART | (11 << 8))
 #define BL808_FUNC_RMII				8
 #define BL808_FUNC_CAM				9
 #define BL808_FUNC_ADC				10
@@ -40,16 +41,17 @@
 #define BL808_FUNC_JTAG_LP			25
 #define BL808_FUNC_JTAG_M0			26
 #define BL808_FUNC_JTAG_D0			27
-#define BL808_FUNC_CLK_OUT_CAM_REF_CLK		(31 | (0 << 8))
-#define BL808_FUNC_CLK_OUT_I2S_REF_CLK		(31 | (1 << 8))
-#define BL808_FUNC_CLK_OUT0_AUDIO_ADC_CLK	(31 | (2 << 8))
-#define BL808_FUNC_CLK_OUT0_AUDIO_DAC_CLK	(31 | (3 << 8))
-#define BL808_FUNC_CLK_OUT1_AUDIO_ADC_CLK	(31 | (2 << 8))
-#define BL808_FUNC_CLK_OUT1_AUDIO_DAC_CLK	(31 | (3 << 8))
-#define BL808_FUNC_CLK_OUT2_ANA_XTAL_CLK	(31 | (2 << 8))
-#define BL808_FUNC_CLK_OUT2_PLL_32M_CLK		(31 | (3 << 8))
-#define BL808_FUNC_CLK_OUT3_NONE		(31 | (2 << 8))
-#define BL808_FUNC_CLK_OUT3_PLL_48M_CLK		(31 | (3 << 8))
+#define BL808_FUNC_CLK_OUT			31
+#define BL808_FUNC_CLK_OUT_CAM_REF_CLK		(BL808_FUNC_CLK_OUT | (0 << 8))
+#define BL808_FUNC_CLK_OUT_I2S_REF_CLK		(BL808_FUNC_CLK_OUT | (1 << 8))
+#define BL808_FUNC_CLK_OUT0_AUDIO_ADC_CLK	(BL808_FUNC_CLK_OUT | (2 << 8))
+#define BL808_FUNC_CLK_OUT0_AUDIO_DAC_CLK	(BL808_FUNC_CLK_OUT | (3 << 8))
+#define BL808_FUNC_CLK_OUT1_AUDIO_ADC_CLK	(BL808_FUNC_CLK_OUT | (2 << 8))
+#define BL808_FUNC_CLK_OUT1_AUDIO_DAC_CLK	(BL808_FUNC_CLK_OUT | (3 << 8))
+#define BL808_FUNC_CLK_OUT2_ANA_XTAL_CLK	(BL808_FUNC_CLK_OUT | (2 << 8))
+#define BL808_FUNC_CLK_OUT2_PLL_32M_CLK		(BL808_FUNC_CLK_OUT | (3 << 8))
+#define BL808_FUNC_CLK_OUT3_NONE		(BL808_FUNC_CLK_OUT | (2 << 8))
+#define BL808_FUNC_CLK_OUT3_PLL_48M_CLK		(BL808_FUNC_CLK_OUT | (3 << 8))
 
 #define BL808_PINMUX(pin, func)			(((pin) << 16) | (func))
 
