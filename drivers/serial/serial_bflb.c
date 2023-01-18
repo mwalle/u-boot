@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: GPL-2.0+
 /*
- * Copyright (c) 2022
+ * Copyright (c) 2023 Michael Walle <michael@walle.cc>
  */
 
 #include <common.h>
@@ -21,6 +21,15 @@ DECLARE_GLOBAL_DATA_PTR;
 
 #define UART_TXFIFO_CNT_MASK 0x0000003f
 #define UART_RXFIFO_CNT_MASK 0x00003f00
+
+#define UTX_EN			BIT(0)
+#define UTX_CTS_EN		BIT(1)
+#define UTX_FRM_EN		BIT(2)
+#define UTX_BIT_CNT_D(x)	(((x) & 7) << 8)
+#define UTX_BIT_CNT_P(x)	(((x) & 3) << 11)
+
+#define URX_EN			BIT(0)
+#define URX_BIT_CNT_D(x)	(((x) & 7) << 8)
 
 #define UART_BIT_PRD_RX_DIV(x)	(((x) & 0xffff) << 16)
 #define UART_BIT_PRD_TX_DIV(x)	((x) & 0xffff)
@@ -74,11 +83,9 @@ static void _bflb_serial_setbrg(struct uart_bflb *regs,
 
 static void _bflb_serial_init(struct uart_bflb *regs)
 {
-	writel(0xf05, &regs->utx_config);
-	writel(0x701, &regs->urx_config);
-	//writel(UART_TXCTRL_TXEN, &regs->txctrl);
-	//writel(UART_RXCTRL_RXEN, &regs->rxctrl);
-	//writel(0, &regs->ie);
+	writel(UTX_BIT_CNT_P(1) | UTX_BIT_CNT_D(7) | UTX_FRM_EN | UTX_EN,
+	       &regs->utx_config);
+	writel(URX_BIT_CNT_D(7) | URX_EN, &regs->urx_config);
 }
 
 static int _bflb_serial_putc(struct uart_bflb *regs, const char c)
@@ -115,11 +122,6 @@ static int bflb_serial_probe(struct udevice *dev)
 	struct bflb_uart_priv *priv = dev_get_priv(dev);
 	int ret;
 
-#if 0
-	/* No need to reinitialize the UART after relocation */
-	if (gd->flags & GD_FLG_RELOC)
-		return 0;
-#endif
 	ret = clk_get_by_index(dev, 0, &priv->clk);
 	if (ret < 0)
 		return ret;
@@ -127,8 +129,6 @@ static int bflb_serial_probe(struct udevice *dev)
 	ret = clk_enable(&priv->clk);
 	if (ret < 0)
 		return ret;
-
-       writel(0x0f000003, 0x20000120);
 
 	_bflb_serial_init(plat->regs);
 
@@ -190,7 +190,7 @@ static const struct dm_serial_ops bflb_serial_ops = {
 
 static const struct udevice_id bflb_serial_ids[] = {
 	{ .compatible = "bouffalolab,bl808-uart" },
-	{ }
+	{}
 };
 
 U_BOOT_DRIVER(serial_bflb) = {
@@ -221,12 +221,6 @@ static inline void _debug_uart_putc(int ch)
 
 	while (_bflb_serial_putc(regs, ch) == -EAGAIN)
 		schedule();
-#if 0
-	while ((readl(&regs->uart_fifo_config_1) & UART_TXFIFO_CNT_MASK) == 0)
-		schedule();
-
-	writel(ch, &regs->uart_fifo_wdata);
-#endif
 }
 
 DEBUG_UART_FUNCS
