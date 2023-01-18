@@ -67,6 +67,8 @@
 
 			pinctrl: pinctrl {
 				compatible = "bouffalolab,bl808-pinctrl";
+				gpio-controller;
+				#gpio-cells = <2>;
 			};
 		};
 
