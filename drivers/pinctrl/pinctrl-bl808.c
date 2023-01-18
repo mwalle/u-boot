@@ -4,8 +4,11 @@
  */
 
 #include <asm/io.h>
+#include <asm/gpio.h>
 #include <common.h>
 #include <dm.h>
+#include <dm/device-internal.h>
+#include <dm/lists.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/pinctrl/bl808-pinctrl.h>
 #include <linux/bitfield.h>
@@ -43,6 +46,10 @@
 #define GPIO_CFG_I			BIT(28)
 #define GPIO_CFG_MODE			GENMASK(31, 30)
 
+#define GPIO_MODE_VALUE		0
+#define GPIO_MODE_SET_CLR	1
+#define GPIO_MODE_DMA_VALUE	2
+#define GPIO_MODE_DMA_SET_CLR	3
 
 struct bl808_pinctrl_priv {
 	void *glb;
@@ -251,7 +258,7 @@ static int bl808_pinctrl_get_gpio_mux(struct udevice *dev, int banknum,
 {
 	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
 	int func;
-        u32 val;
+	u32 val;
 
 	if (banknum || index > priv->pin_count)
 		return -EINVAL;
@@ -284,8 +291,6 @@ static int bl808_pinctrl_pinmux_property_set(struct udevice *dev,
 
 	val = readl(priv->glb + GLB_GPIO_CFG(pin));
 	u32p_replace_bits(&val, func, GPIO_CFG_FUNC_SEL);
-	/* XXX: unknown */
-	u32p_replace_bits(&val, 1, GPIO_CFG_MODE);
 	writel(val, priv->glb + GLB_GPIO_CFG(pin));
 
 	if (func == BL808_FUNC_UART) {
@@ -338,6 +343,7 @@ static int bl808_init_gpio_mode(struct bl808_pinctrl_priv *priv)
 static int bl808_pinctrl_probe(struct udevice *dev)
 {
 	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
+	int ret;
 
 	priv->glb = dev_read_addr_ptr(dev_get_parent(dev));
 	if (!priv->glb)
@@ -350,7 +356,7 @@ static int bl808_pinctrl_probe(struct udevice *dev)
 		return ret;
 
 	/* bind optional gpio driver */
-	device_bind(dev, lists_driver_loopup_name("bl808_gpio"),
+	device_bind(dev, lists_driver_lookup_name("bl808_gpio"),
 		    "bl808_gpio", NULL, dev_ofnode(dev), NULL);
 
 	return 0;
