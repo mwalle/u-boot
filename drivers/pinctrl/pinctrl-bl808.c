@@ -246,6 +246,30 @@ static int bl808_pinctrl_pinconf_set(struct udevice *dev, unsigned pin,
 	return 0;
 }
 
+static int bl808_pinctrl_get_gpio_mux(struct udevice *dev, int banknum,
+				      int index)
+{
+	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
+	int func;
+        u32 val;
+
+	if (banknum || index > priv->pin_count)
+		return -EINVAL;
+
+	val = readl(priv->glb + GLB_GPIO_CFG(index));
+	func = u32_get_bits(val, GPIO_CFG_FUNC_SEL);
+
+	if (func != BL808_FUNC_GPIO)
+		return GPIOF_FUNC;
+
+	if (val & GPIO_CFG_OE)
+		return GPIOF_OUTPUT;
+	else if (val & GPIO_CFG_IE)
+		return GPIOF_INPUT;
+	else
+		return GPIOF_UNKNOWN;
+}
+
 static int bl808_pinctrl_pinmux_property_set(struct udevice *dev,
 					     u32 pinmux_group)
 {
@@ -291,6 +315,7 @@ static const struct pinctrl_ops bl808_pinctrl_ops = {
 	.get_pins_count = bl808_pinctrl_get_pins_count,
 	.get_pin_name = bl808_pinctrl_get_pin_name,
 	.get_pin_muxing = bl808_pinctrl_get_pin_muxing,
+	.get_gpio_mux = bl808_pinctrl_get_gpio_mux,
 	.pinmux_property_set = bl808_pinctrl_pinmux_property_set,
 	.pinconf_num_params = ARRAY_SIZE(bl808_pinctrl_pinconf_params),
 	.pinconf_params = bl808_pinctrl_pinconf_params,
@@ -320,7 +345,15 @@ static int bl808_pinctrl_probe(struct udevice *dev)
 
 	priv->pin_count = BL808_PIN_COUNT;
 
-	return bl808_init_gpio_mode(priv);
+	ret = bl808_init_gpio_mode(priv);
+	if (ret)
+		return ret;
+
+	/* bind optional gpio driver */
+	device_bind(dev, lists_driver_loopup_name("bl808_gpio"),
+		    "bl808_gpio", NULL, dev_ofnode(dev), NULL);
+
+	return 0;
 }
 
 static const struct udevice_id bl808_pinctrl_ids[] = {
