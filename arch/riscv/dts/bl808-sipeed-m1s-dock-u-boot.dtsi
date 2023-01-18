@@ -12,3 +12,19 @@
 		};
 	};
 };
+
+&clkc {
+	u-boot,dm-pre-reloc;
+};
+
+&glb {
+	u-boot,dm-pre-reloc;
+};
+
+&pinctrl {
+	u-boot,dm-pre-reloc;
+};
+
+&uart0_pins {
+	u-boot,dm-pre-reloc;
+};

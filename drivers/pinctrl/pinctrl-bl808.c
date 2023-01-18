@@ -3,24 +3,19 @@
  * Copyright (c) 2023 Michael Walle <michael@walle.cc>
  */
 
-#define DEBUG
+#include <asm/io.h>
 #include <common.h>
-#include <clk.h>
 #include <dm.h>
 #include <dm/pinctrl.h>
 #include <dt-bindings/pinctrl/bl808-pinctrl.h>
-#include <mapmem.h>
-#include <regmap.h>
-#include <syscon.h>
-#include <asm/io.h>
-#include <linux/err.h>
 #include <linux/bitfield.h>
 #include <linux/bitops.h>
 
-struct bl808_pinctrl_regs {
-	u32 gpio_cfg[64];
-};
 #define BL808_PIN_COUNT 46
+
+#define GLB_UART_CFG1			0x154
+#define GLB_UART_CFG2			0x158
+#define GLB_GPIO_CFG(n)			(0x8c4 + 4 * (n))
 
 #define GPIO_CFG_IE			BIT(0)
 #define GPIO_CFG_SMT			BIT(1)
@@ -48,8 +43,9 @@ struct bl808_pinctrl_regs {
 #define GPIO_CFG_I			BIT(28)
 #define GPIO_CFG_MODE			GENMASK(31, 30)
 
+
 struct bl808_pinctrl_priv {
-	struct bl808_pinctrl_regs *regs;
+	void *glb;
 	int pin_count;
 };
 
@@ -117,21 +113,48 @@ static const char *drv_strength_str[] = {
 	[GPIO_CFG_DRV_12_8_MA] = "12.8mA",
 };
 
+static const char *uart_subfunc[16] = {
+	[BL808_FUNC_UART0_RTS >> 8] = "UART0_RTS",
+	[BL808_FUNC_UART0_CTS >> 8] = "UART0_CTS",
+	[BL808_FUNC_UART0_TX  >> 8] = "UART0_TX",
+	[BL808_FUNC_UART0_RX  >> 8] = "UART0_RX",
+	[BL808_FUNC_UART1_RTS >> 8] = "UART1_RTS",
+	[BL808_FUNC_UART1_CTS >> 8] = "UART1_CTS",
+	[BL808_FUNC_UART1_TX  >> 8] = "UART1_TX",
+	[BL808_FUNC_UART1_RX  >> 8] = "UART1_RX",
+	[BL808_FUNC_UART2_RTS >> 8] = "UART2_RTS",
+	[BL808_FUNC_UART2_CTS >> 8] = "UART2_CTS",
+	[BL808_FUNC_UART2_TX  >> 8] = "UART2_TX",
+	[BL808_FUNC_UART2_RX  >> 8] = "UART2_RX",
+};
+
 static int bl808_pinctrl_get_pin_muxing(struct udevice *dev, unsigned selector,
 					char *buf, int size)
 {
 	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
-	struct bl808_pinctrl_regs *regs = priv->regs;
-	const char *func_str;
+	const char *func_str = NULL;
 	int func;
         u32 val;
 
 	if (selector > priv->pin_count)
 		return -EINVAL;
 
-	val = readl(&regs->gpio_cfg[selector]);
+	val = readl(priv->glb + GLB_GPIO_CFG(selector));
 	func = u32_get_bits(val, GPIO_CFG_FUNC_SEL);
-	func_str = func_names[func];
+
+	if (func == BL808_FUNC_UART) {
+		int subsel = selector % 12;
+		int subfunc;
+
+		if (subsel < 8)
+			val = readl(priv->glb + GLB_UART_CFG1);
+		else
+			val = readl(priv->glb + GLB_UART_CFG2);
+		subfunc = (val >> (4 * (subsel % 8))) & 0xf;
+		func_str = uart_subfunc[subfunc];
+	}
+	if (!func_str)
+		func_str = func_names[func];
 	if (!func_str)
 		func_str = simple_itoa(func);
 
@@ -151,15 +174,12 @@ static int bl808_pinctrl_pinconf_set(struct udevice *dev, unsigned pin,
 				     unsigned param, unsigned argument)
 {
 	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
-	struct bl808_pinctrl_regs *regs = priv->regs;
 	u32 val, tmp;
-
-	debug("%s %d %x %x\n", __func__, pin, param, argument);
 
 	if (pin > priv->pin_count)
 		return -EINVAL;
 
-        val = readl(&regs->gpio_cfg[pin]);
+        val = readl(priv->glb + GLB_GPIO_CFG(pin));
 
 	switch (param) {
 	case PIN_CONFIG_BIAS_DISABLE:
@@ -221,8 +241,7 @@ static int bl808_pinctrl_pinconf_set(struct udevice *dev, unsigned pin,
 		return -EINVAL;
 	}
 
-printf("writing %08x to %p\n", val, &regs->gpio_cfg[pin]);
-        writel(val, &regs->gpio_cfg[pin]);
+	writel(val, priv->glb + GLB_GPIO_CFG(pin));
 
 	return 0;
 }
@@ -231,23 +250,38 @@ static int bl808_pinctrl_pinmux_property_set(struct udevice *dev,
 					     u32 pinmux_group)
 {
 	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
-	struct bl808_pinctrl_regs *regs = priv->regs;
 	int func = pinmux_group & 0x1f;
 	int subfunc = (pinmux_group >> 8) & 0xf;
 	int pin = (pinmux_group >> 16) & 0xff;
 	u32 val;
 
-	debug("%s %x\n", __func__, pinmux_group);
-
 	if (pin > priv->pin_count)
 		return -EINVAL;
 
-        val = readl(&regs->gpio_cfg[pin]);
-        u32p_replace_bits(&val, func, GPIO_CFG_FUNC_SEL);
+	val = readl(priv->glb + GLB_GPIO_CFG(pin));
+	u32p_replace_bits(&val, func, GPIO_CFG_FUNC_SEL);
 	/* XXX: unknown */
-        u32p_replace_bits(&val, 1, GPIO_CFG_MODE);
-printf("writing %08x to %p\n", val, &regs->gpio_cfg[pin]);
-        writel(val, &regs->gpio_cfg[pin]);
+	u32p_replace_bits(&val, 1, GPIO_CFG_MODE);
+	writel(val, priv->glb + GLB_GPIO_CFG(pin));
+
+	if (func == BL808_FUNC_UART) {
+		int subsel = pin % 12;
+		int shift = 4 * (subsel % 8);
+		int mask = 0xf << shift;
+
+		if (subsel < 8)
+			val = readl(priv->glb + GLB_UART_CFG1);
+		else
+			val = readl(priv->glb + GLB_UART_CFG2);
+
+		val &= ~mask;
+		val |= subfunc << shift;
+
+		if (subsel < 8)
+			writel(val, priv->glb + GLB_UART_CFG1);
+		else
+			writel(val, priv->glb + GLB_UART_CFG2);
+	}
 
 	return pin;
 }
@@ -263,18 +297,30 @@ static const struct pinctrl_ops bl808_pinctrl_ops = {
 	.pinconf_set = bl808_pinctrl_pinconf_set,
 };
 
+#define BL808_PINCTRL_DEFAULT 0x00400b02
+static int bl808_init_gpio_mode(struct bl808_pinctrl_priv *priv)
+{
+	int pin;
+
+	for (pin = 0; pin < priv->pin_count; pin++)
+		writel(BL808_PINCTRL_DEFAULT, priv->glb + GLB_GPIO_CFG(pin));
+	writel(~0, priv->glb + GLB_UART_CFG1);
+	writel(~0, priv->glb + GLB_UART_CFG2);
+
+	return 0;
+}
+
 static int bl808_pinctrl_probe(struct udevice *dev)
 {
 	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
-	debug("%s\n", __func__);
 
-	priv->regs = dev_read_addr_ptr(dev);
-	if (!priv->regs)
+	priv->glb = dev_read_addr_ptr(dev_get_parent(dev));
+	if (!priv->glb)
 		return -EINVAL;
 
 	priv->pin_count = BL808_PIN_COUNT;
 
-	return 0;
+	return bl808_init_gpio_mode(priv);
 }
 
 static const struct udevice_id bl808_pinctrl_ids[] = {
@@ -287,6 +333,6 @@ U_BOOT_DRIVER(pinctrl_bl808) = {
 	.id = UCLASS_PINCTRL,
 	.of_match = bl808_pinctrl_ids,
 	.probe = bl808_pinctrl_probe,
-	.priv_auto=  sizeof(struct bl808_pinctrl_priv),
+	.priv_auto = sizeof(struct bl808_pinctrl_priv),
 	.ops = &bl808_pinctrl_ops,
 };

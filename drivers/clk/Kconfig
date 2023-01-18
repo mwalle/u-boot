@@ -48,6 +48,12 @@ config CLK_BCM6345
 	  This clock driver adds support for enabling and disabling peripheral
 	  clocks on BCM6345 SoCs. HW has no rate changing capabilities.
 
+config CLK_BL808
+	bool "Clock support for Bouffalolab BL808"
+	depends on CLK
+	help
+	  This enables support clock driver for Bouffalolal BL808 platforms.
+
 config CLK_BOSTON
 	def_bool y if TARGET_BOSTON
 	depends on CLK

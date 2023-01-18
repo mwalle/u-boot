@@ -28,6 +28,7 @@ obj-$(CONFIG_ARCH_STM32MP) += stm32/
 obj-$(CONFIG_ARCH_SUNXI) += sunxi/
 obj-$(CONFIG_CLK_AT91) += at91/
 obj-$(CONFIG_CLK_BCM6345) += clk_bcm6345.o
+obj-$(CONFIG_CLK_BL808) += clk_bl808.o
 obj-$(CONFIG_CLK_BOSTON) += clk_boston.o
 obj-$(CONFIG_CLK_CDCE9XX) += clk-cdce9xx.o
 obj-$(CONFIG_CLK_EXYNOS) += exynos/

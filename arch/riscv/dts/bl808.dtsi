@@ -4,6 +4,7 @@
  */
 
 #include <dt-bindings/interrupt-controller/irq.h>
+#include <dt-bindings/clock/bl808-clock.h>
 
 / {
 	compatible = "bouffalolab,bl808";
@@ -58,9 +59,14 @@
 			#address-cells = <1>;
 			#size-cells = <1>;
 
-			pinctrl: pinctrl@200008c4 {
+			clkc: clock-controller {
+				#clock-cells = <1>;
+				compatible = "bouffalolab,bl808-clk";
+				clocks = <&xtal>;
+			};
+
+			pinctrl: pinctrl {
 				compatible = "bouffalolab,bl808-pinctrl";
-				reg = <0x200008c4 0x100>;
 			};
 		};
 
@@ -68,7 +74,7 @@
 			compatible = "bouffalolab,bl808-uart";
 			reg = <0x2000a000 0x100>;
 			interrupts = <44 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&xtal>;
+			clocks = <&clkc BL808_CLK_UART>;
 			status = "disabled";
 		};
 
@@ -82,7 +88,7 @@
 			compatible = "bouffalolab,bl808-uart";
 			reg = <0x30002000 0x100>;
 			interrupts = <20 IRQ_TYPE_LEVEL_HIGH>;
-			clocks = <&xtal>;
+			clocks = <&clkc BL808_CLK_MM_UART0>;
 			status = "disabled";
 		};
 

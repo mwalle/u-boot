@@ -20,7 +20,19 @@
 	};
 };
 
+&pinctrl {
+	uart0_pins: uart0-pins {
+		pinmux = <BL808_PINMUX(16, BL808_FUNC_UART0_TX)>,
+			 <BL808_PINMUX(17, BL808_FUNC_UART0_RX)>;
+		bias-pull-up;
+		input-enable;
+		output-enable;
+		drive-strength-microamp = <12800>;
+	};
+};
+
 &uart0 {
+	pinctrl-0 = <&uart0_pins>;
+	pinctrl-names = "default";
 	status = "okay";
-	u-boot,dm-pre-reloc;
 };
