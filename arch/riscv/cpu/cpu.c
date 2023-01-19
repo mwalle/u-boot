@@ -9,7 +9,9 @@
 #include <dm/lists.h>
 #include <event.h>
 #include <init.h>
+#include <irq_func.h>
 #include <log.h>
+#include <asm/cache.h>
 #include <asm/encoding.h>
 #include <asm/system.h>
 #include <dm/uclass-internal.h>
@@ -171,4 +173,19 @@ int arch_early_init_r(void)
  */
 __weak void harts_early_init(void)
 {
+}
+
+/*
+ * cleanup_before_linux() is called just before we call linux
+ * it prepares the processor for linux
+ *
+ * we disable interrupt and caches.
+ */
+__weak int cleanup_before_linux(void)
+{
+	disable_interrupts();
+
+	cache_flush();
+
+	return 0;
 }
