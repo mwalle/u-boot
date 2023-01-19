@@ -19,49 +19,53 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-#define UART_TXFIFO_CNT_MASK 0x0000003f
-#define UART_RXFIFO_CNT_MASK 0x00003f00
+#define TX_EN			BIT(0)
+#define TX_CTS_EN		BIT(1)
+#define TX_FRM_EN		BIT(2)
+#define TX_BIT_CNT_D(x)		(((x) & 7) << 8)
+#define TX_BIT_CNT_P(x)		(((x) & 3) << 11)
 
-#define UTX_EN			BIT(0)
-#define UTX_CTS_EN		BIT(1)
-#define UTX_FRM_EN		BIT(2)
-#define UTX_BIT_CNT_D(x)	(((x) & 7) << 8)
-#define UTX_BIT_CNT_P(x)	(((x) & 3) << 11)
-
-#define URX_EN			BIT(0)
-#define URX_BIT_CNT_D(x)	(((x) & 7) << 8)
+#define RX_EN			BIT(0)
+#define RX_BIT_CNT_D(x)		(((x) & 7) << 8)
 
 #define UART_BIT_PRD_RX_DIV(x)	(((x) & 0xffff) << 16)
 #define UART_BIT_PRD_TX_DIV(x)	((x) & 0xffff)
 
+#define FIFO_CONFIG_0_TX_FIFO_CLR BIT(2)
+#define FIFO_CONFIG_0_RX_FIFO_CLR BIT(3)
+
+#define UART_TXFIFO_CNT_MASK 0x0000003f
+#define UART_RXFIFO_CNT_MASK 0x00003f00
+
+
 struct uart_bflb {
-	u32 utx_config;
-	u32 urx_config;
+	u32 tx_config;
+	u32 rx_config;
 	u32 uart_bit_prd;
 	u32 data_config;
-	u32 utx_ir_position;
-	u32 urx_ir_position;
-	u32 urx_rto_timer;
-	u32 uart_sw_mode;
-	u32 uart_int_sts;
-	u32 uart_int_mask;
-	u32 uart_int_clear;
-	u32 uart_int_en;
-	u32 uart_status;
-	u32 sts_urx_abr_prd;
-	u32 urx_abr_prd_b01;
-	u32 urx_abr_prd_b23;
-	u32 urx_abr_prd_b45;
-	u32 urx_abr_prd_b67;
-	u32 urx_abr_pw_tol;
+	u32 tx_ir_position;
+	u32 rx_ir_position;
+	u32 rx_rto_timer;
+	u32 sw_mode;
+	u32 int_sts;
+	u32 int_mask;
+	u32 int_clear;
+	u32 int_en;
+	u32 status;
+	u32 sts_rx_abr_prd;
+	u32 rx_abr_prd_b01;
+	u32 rx_abr_prd_b23;
+	u32 rx_abr_prd_b45;
+	u32 rx_abr_prd_b67;
+	u32 rx_abr_pw_tol;
 	u32 rsvd0[1];
-	u32 urx_bcr_int_cfg;
-	u32 utx_rs485_cfg;
+	u32 rx_bcr_int_cfg;
+	u32 tx_rs485_cfg;
 	u32 rsvd1[10];
-	u32 uart_fifo_config_0;
-	u32 uart_fifo_config_1;
-	u32 uart_fifo_wdata;
-	u32 uart_fifo_rdata;
+	u32 fifo_config_0;
+	u32 fifo_config_1;
+	u32 fifo_wdata;
+	u32 fifo_rdata;
 };
 
 struct bflb_uart_plat {
@@ -75,7 +79,10 @@ struct bflb_uart_priv {
 static void _bflb_serial_setbrg(struct uart_bflb *regs,
 				unsigned long clock, unsigned long baud)
 {
-	int div = clock / baud;
+	unsigned int div = clock / baud - 1;
+
+	/* drain the buffer */
+	while (!(readl(&regs->fifo_config_1) & UART_TXFIFO_CNT_MASK));
 
 	writel(UART_BIT_PRD_RX_DIV(div) |
 	       UART_BIT_PRD_TX_DIV(div), &regs->uart_bit_prd);
@@ -83,27 +90,27 @@ static void _bflb_serial_setbrg(struct uart_bflb *regs,
 
 static void _bflb_serial_init(struct uart_bflb *regs)
 {
-	writel(UTX_BIT_CNT_P(1) | UTX_BIT_CNT_D(7) | UTX_FRM_EN | UTX_EN,
-	       &regs->utx_config);
-	writel(URX_BIT_CNT_D(7) | URX_EN, &regs->urx_config);
+	writel(TX_BIT_CNT_P(2) | TX_BIT_CNT_D(7) | TX_FRM_EN | TX_EN,
+	       &regs->tx_config);
+	writel(RX_BIT_CNT_D(7) | RX_EN, &regs->rx_config);
 }
 
 static int _bflb_serial_putc(struct uart_bflb *regs, const char c)
 {
-	if ((readl(&regs->uart_fifo_config_1) & UART_TXFIFO_CNT_MASK) == 0)
+	if ((readl(&regs->fifo_config_1) & UART_TXFIFO_CNT_MASK) == 0)
 		return -EAGAIN;
 
-	writel(c, &regs->uart_fifo_wdata);
+	writel(c, &regs->fifo_wdata);
 
 	return 0;
 }
 
 static int _bflb_serial_getc(struct uart_bflb *regs)
 {
-	if ((readl(&regs->uart_fifo_config_1) & UART_RXFIFO_CNT_MASK) == 0)
+	if ((readl(&regs->fifo_config_1) & UART_RXFIFO_CNT_MASK) == 0)
 		return -EAGAIN;
 
-	return readl(&regs->uart_fifo_rdata);
+	return readl(&regs->fifo_rdata);
 }
 
 static int bflb_serial_setbrg(struct udevice *dev, int baudrate)
@@ -162,7 +169,7 @@ static int bflb_serial_pending(struct udevice *dev, bool input)
 	struct uart_bflb *regs = plat->regs;
 	u32 stat;
 
-	stat = readl(&regs->uart_fifo_config_1);
+	stat = readl(&regs->fifo_config_1);
 
 	if (input)
 		return !!(stat & UART_RXFIFO_CNT_MASK);
