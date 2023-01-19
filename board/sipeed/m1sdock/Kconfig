@@ -10,7 +10,7 @@ config SYS_VENDOR
 	default "sipeed"
 
 config SYS_CPU
-	default "generic"
+	default "c906"
 
 config SYS_CONFIG_NAME
 	default "sipeed-m1sdock"
