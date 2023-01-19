@@ -30,6 +30,12 @@ int board_early_init_f(void)
 {
 	struct udevice *dev;
 	int ret;
+	u32 val;
+
+	/* enable timer */
+	val = readl(0x30000018);
+	val |= 0x80000000;
+	writel(val, 0x30000018);
 
 	ret = uclass_get_device(UCLASS_RAM, 0, &dev);
 	if (ret)
