@@ -11,17 +11,17 @@
 
 DECLARE_GLOBAL_DATA_PTR;
 
-int dram_init(void)
+__weak int dram_init(void)
 {
 	return fdtdec_setup_mem_size_base();
 }
 
-int dram_init_banksize(void)
+__weak int dram_init_banksize(void)
 {
 	return fdtdec_setup_memory_banksize();
 }
 
-phys_size_t board_get_usable_ram_top(phys_size_t total_size)
+__weak phys_size_t board_get_usable_ram_top(phys_size_t total_size)
 {
 	/*
 	 * Ensure that we run from first 4GB so that all
