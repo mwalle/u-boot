@@ -327,19 +327,6 @@ static const struct pinctrl_ops bl808_pinctrl_ops = {
 	.pinconf_set = bl808_pinctrl_pinconf_set,
 };
 
-#define BL808_PINCTRL_DEFAULT 0x00400b02
-static int bl808_init_gpio_mode(struct bl808_pinctrl_priv *priv)
-{
-	int pin;
-
-	for (pin = 0; pin < priv->pin_count; pin++)
-		writel(BL808_PINCTRL_DEFAULT, priv->glb + GLB_GPIO_CFG(pin));
-	writel(~0, priv->glb + GLB_UART_CFG1);
-	writel(~0, priv->glb + GLB_UART_CFG2);
-
-	return 0;
-}
-
 static int bl808_pinctrl_probe(struct udevice *dev)
 {
 	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
@@ -350,10 +337,6 @@ static int bl808_pinctrl_probe(struct udevice *dev)
 		return -EINVAL;
 
 	priv->pin_count = BL808_PIN_COUNT;
-
-	ret = bl808_init_gpio_mode(priv);
-	if (ret)
-		return ret;
 
 	/* bind optional gpio driver */
 	device_bind(dev, lists_driver_lookup_name("bl808_gpio"),
