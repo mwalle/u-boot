@@ -3,7 +3,6 @@
  * Copyright (C) 2023 Michael Walle <michael@walle.cc>
  */
 
-#define DEBUG
 #define LOG_CATEGORY UCLASS_SPI
 
 #include <common.h>
@@ -93,7 +92,7 @@
 #define IO_DLY4_IO3_DI_DLY_SEL(x)	(((x) & 0x3) << 8)
 #define IO_DLY4_IO3_DO_DLY_SEL(x)	(((x) & 0x3) << 16)
 
-#define BFLB_SFLASH_BUF_SIZE 0x800
+#define BFLB_SFLASH_BUF_SIZE 0x200
 
 struct bflb_sflash_regs {
 	u32 ctrl0;
@@ -157,18 +156,6 @@ struct bflb_sflash_regs {
 	u32 buffer[];
 };
 
-static_assert(offsetof(struct bflb_sflash_regs, dbg) == 0xb0);
-static_assert(offsetof(struct bflb_sflash_regs, dbg) == 0xb0);
-static_assert(offsetof(struct bflb_sflash_regs, if2_sahb2) == 0xd0);
-static_assert(offsetof(struct bflb_sflash_regs, ctrl_prot_en) == 0x104);
-static_assert(offsetof(struct bflb_sflash_regs, aes_key_r0) == 0x200);
-static_assert(offsetof(struct bflb_sflash_regs, aes_r0_end) == 0x234);
-static_assert(offsetof(struct bflb_sflash_regs, aes_key_r1) == 0x280);
-static_assert(offsetof(struct bflb_sflash_regs, aes_r1_end) == 0x2b4);
-static_assert(offsetof(struct bflb_sflash_regs, aes_key_r2) == 0x300);
-static_assert(offsetof(struct bflb_sflash_regs, aes_r2_end) == 0x334);
-static_assert(offsetof(struct bflb_sflash_regs, buffer) == 0x600);
-
 struct bflb_sflash_priv {
 	struct udevice *dev;
 	struct bflb_sflash_regs *regs;
@@ -223,7 +210,15 @@ static int bflb_sflash_exec_op(struct spi_slave *slave,
 	      op->dummy.buswidth, op->data.buswidth, op->addr.val,
 	      op->data.nbytes);
 
-	writel(op->cmd.opcode << 24, &regs->if_sahb1);
+	if (op->addr.nbytes == 3) {
+		writel(op->cmd.opcode << 24 |
+		       (op->addr.val & 0xffffff), &regs->if_sahb1);
+	} else {
+		writel(op->cmd.opcode << 24 |
+		       ((op->addr.val >> 8) & 0xffffff), &regs->if_sahb1);
+		writel((op->addr.val & 0xff) << 24, &regs->if_sahb2);
+	}
+
 	if (op->cmd.buswidth == 4)
 		val = SAHB0_IF_MODE_QUAD_IO | SAHB0_IF_QPI_EN;
 	else if (op->data.buswidth == 1)
@@ -247,10 +242,11 @@ static int bflb_sflash_exec_op(struct spi_slave *slave,
 		val |= SAHB0_IF_DMY_EN | SAHB0_IF_DMY_BYTE(op->dummy.nbytes - 1);
 	if (op->data.nbytes)
 		val |= SAHB0_IF_DAT_EN | SAHB0_IF_DAT_BYTE(op->data.nbytes - 1);
-	writel(val, &regs->if_sahb0);
-
-	if (op->data.dir == SPI_MEM_DATA_OUT)
+	if (op->data.dir == SPI_MEM_DATA_OUT) {
+		val |= SAHB0_IF_DAT_RW;
 		memcpy(&regs->buffer, op->data.buf.out, op->data.nbytes);
+	}
+	writel(val, &regs->if_sahb0);
 
 	/*
 	 * This needs a rising edge. We cannot combine the tigger bit in the
