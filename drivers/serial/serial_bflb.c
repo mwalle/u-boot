@@ -144,9 +144,9 @@ static int bflb_serial_probe(struct udevice *dev)
 
 static int bflb_serial_getc(struct udevice *dev)
 {
-	int c;
 	struct bflb_uart_plat *plat = dev_get_plat(dev);
 	struct uart_bflb *regs = plat->regs;
+	int c;
 
 	while ((c = _bflb_serial_getc(regs)) == -EAGAIN) ;
 
