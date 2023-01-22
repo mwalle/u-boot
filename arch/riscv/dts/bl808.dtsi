@@ -86,6 +86,15 @@
 			status = "disabled";
 		};
 
+		emac: ethernet@20070000 {
+			#address-cells = <1>;
+			#size-cells = <0>;
+			compatible = "bouffalolab,bl808-emac";
+			reg = <0x20070000 0x1000>;
+			clocks = <&clkc BL808_CLK_ETH_REF_CLK>;
+			status = "disabled";
+		};
+
 		uart3: serial@30002000 {
 			compatible = "bouffalolab,bl808-uart";
 			reg = <0x30002000 0x100>;

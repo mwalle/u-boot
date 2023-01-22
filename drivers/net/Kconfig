@@ -175,6 +175,12 @@ config BCMGENET
 	help
 	  This driver supports the BCMGENET Ethernet MAC.
 
+config BFLB_EMAC
+	bool "Bouffalolab EMAC support"
+	select PHYLIB
+	help
+	  This driver supports the Bouffalolab Ethernet MAC.
+
 config CORTINA_NI_ENET
 	bool "Cortina-Access Ethernet driver"
 	depends on CORTINA_PLATFORM

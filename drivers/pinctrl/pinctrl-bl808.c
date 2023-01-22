@@ -330,7 +330,6 @@ static const struct pinctrl_ops bl808_pinctrl_ops = {
 static int bl808_pinctrl_probe(struct udevice *dev)
 {
 	struct bl808_pinctrl_priv *priv = dev_get_priv(dev);
-	int ret;
 
 	priv->glb = dev_read_addr_ptr(dev_get_parent(dev));
 	if (!priv->glb)

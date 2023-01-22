@@ -62,6 +62,7 @@
 #define	MODER_HUGE	(1 << 14)	/* huge packets enable */
 #define	MODER_PAD	(1 << 15)	/* padding enabled */
 #define	MODER_RSM	(1 << 16)	/* receive small packets */
+#define	MODER_RMII	(1 << 17)	/* RMII enable */
 
 /* interrupt source and mask registers */
 #define	INT_MASK_TXF	(1 << 0)	/* transmit frame */
@@ -316,6 +317,8 @@ static int ethoc_reset(struct ethoc *priv)
 	/* enable FCS generation and automatic padding */
 	mode = ethoc_read(priv, MODER);
 	mode |= MODER_CRC | MODER_PAD;
+	//if (device_is_compatible(priv->dev
+	mode |= MODER_RMII;
 	ethoc_write(priv, MODER, mode);
 
 	/* set full-duplex mode */
@@ -738,6 +741,7 @@ static const struct eth_ops ethoc_ops = {
 };
 
 static const struct udevice_id ethoc_ids[] = {
+	{ .compatible = "bouffalolab,bl808-emac" },
 	{ .compatible = "opencores,ethoc" },
 	{ }
 };

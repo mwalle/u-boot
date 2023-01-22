@@ -21,6 +21,23 @@
 };
 
 &pinctrl {
+	emac_pins: emac-pins {
+		pinmux = <BL808_PINMUX(24, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(25, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(26, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(27, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(28, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(29, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(30, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(31, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(32, BL808_FUNC_RMII)>,
+			 <BL808_PINMUX(33, BL808_FUNC_RMII)>;
+		bias-pull-up;
+		input-enable;
+		input-schmitt-enable;
+		drive-strength-microamp = <12800>;
+	};
+
 	uart0_pins: uart0-pins {
 		pinmux = <BL808_PINMUX(16, BL808_FUNC_UART0_TX)>,
 			 <BL808_PINMUX(17, BL808_FUNC_UART0_RX)>;
@@ -35,4 +52,16 @@
 	pinctrl-0 = <&uart0_pins>;
 	pinctrl-names = "default";
 	status = "okay";
+};
+
+&emac {
+	pinctrl-0 = <&emac_pins>;
+	pinctrl-names = "default";
+        phy-mode = "rmii";
+        phy-handle = <&phy1>;
+	status = "okay";
+
+        phy1: ethernet-phy@1 {
+                reg = <1>;
+        };
 };
