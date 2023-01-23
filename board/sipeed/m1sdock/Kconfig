@@ -16,7 +16,7 @@ config SYS_CONFIG_NAME
 	default "sipeed-m1sdock"
 
 config TEXT_BASE
-	default 0x80000000
+	default 0x58000000
 
 config DEFAULT_DEVICE_TREE
 	default "bl808-sipeed-m1s-dock"
@@ -27,4 +27,6 @@ config NR_CPUS
 config BOARD_SPECIFIC_OPTIONS
 	def_bool y
 	select GENERIC_RISCV
+	select SUPPORT_SPL
+	select SPL_MEM
 endif

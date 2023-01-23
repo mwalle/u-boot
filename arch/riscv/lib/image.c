@@ -50,6 +50,7 @@ int booti_setup(ulong image, ulong *relocated_addr, ulong *size,
 		return -EINVAL;
 	}
 	*size = lhdr->image_size;
+printf("image=%lx size=%ld ram_base=%lx ram_size=%lld text_offset=%llx\n", image, *size, gd->ram_base, gd->ram_size, lhdr->text_offset);
 	if (force_reloc ||
 	   (gd->ram_base <= image && image < gd->ram_base + gd->ram_size)) {
 		*relocated_addr = gd->ram_base + lhdr->text_offset;

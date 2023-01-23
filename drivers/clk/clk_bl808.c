@@ -6,6 +6,7 @@
 #define LOG_CATEGORY UCLASS_CLK
 
 #include <common.h>
+#include <asm/io.h>
 #include <clk.h>
 #include <clk-uclass.h>
 #include <div64.h>
@@ -69,6 +70,8 @@ printf("%s\n", __func__);
 	ret = clk_get_by_index(dev, 0, &priv->xtal);
 	if (ret)
 		return ret;
+
+	writel(0x400, 0x20000390);
 
 #if 0
 	/*

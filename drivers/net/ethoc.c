@@ -131,6 +131,7 @@
 #define	TX_BD_RETRY_MASK	(0x00f0)
 #define	TX_BD_RETRY(x)		(((x) & 0x00f0) >>  4)
 #define	TX_BD_UR		(1 <<  8)	/* transmitter underrun */
+#define	TX_BD_EOF		(1 << 10)	/* EOF */
 #define	TX_BD_CRC		(1 << 11)	/* TX CRC enable */
 #define	TX_BD_PAD		(1 << 12)	/* pad enable */
 #define	TX_BD_WRAP		(1 << 13)
@@ -189,7 +190,11 @@ struct ethoc {
 	struct mii_dev *bus;
 	struct phy_device *phydev;
 #endif
+	u32 flags;
 };
+
+#define ETHOC_F_SUPPORTS_FRAGMENTS	BIT(0)
+#define ETHOC_F_USE_RMII		BIT(1)
 
 /**
  * struct ethoc_bd - buffer descriptor
@@ -281,6 +286,9 @@ static int ethoc_init_ring(struct ethoc *priv)
 		if (i == priv->num_tx - 1)
 			bd.stat |= TX_BD_WRAP;
 
+		if (priv->flags & ETHOC_F_SUPPORTS_FRAGMENTS)
+			bd.stat |= TX_BD_EOF;
+
 		ethoc_write_bd(priv, i, &bd);
 	}
 
@@ -317,15 +325,15 @@ static int ethoc_reset(struct ethoc *priv)
 	/* enable FCS generation and automatic padding */
 	mode = ethoc_read(priv, MODER);
 	mode |= MODER_CRC | MODER_PAD;
-	//if (device_is_compatible(priv->dev
-	mode |= MODER_RMII;
+	if (priv->flags & ETHOC_F_USE_RMII)
+		mode |= MODER_RMII;
 	ethoc_write(priv, MODER, mode);
 
 	/* set full-duplex mode */
 	mode = ethoc_read(priv, MODER);
 	mode |= MODER_FULLD;
 	ethoc_write(priv, MODER, mode);
-	ethoc_write(priv, IPGT, 0x15);
+	ethoc_write(priv, IPGT, 0x18);
 
 	ethoc_ack_irq(priv, INT_MASK_ALL);
 	ethoc_enable_rx_and_tx(priv);
@@ -705,6 +713,7 @@ static int ethoc_probe(struct udevice *dev)
 	struct ethoc_eth_pdata *pdata = dev_get_plat(dev);
 	struct ethoc *priv = dev_get_priv(dev);
 
+	priv->flags = dev_get_driver_data(dev);
 	priv->iobase = ioremap(pdata->eth_pdata.iobase, ETHOC_IOSIZE);
 	if (pdata->packet_base) {
 		priv->packet_phys = pdata->packet_base;
@@ -740,8 +749,10 @@ static const struct eth_ops ethoc_ops = {
 	.write_hwaddr	= ethoc_write_hwaddr,
 };
 
+#define BL808_FLAGS (ETHOC_F_SUPPORTS_FRAGMENTS | ETHOC_F_USE_RMII)
+
 static const struct udevice_id ethoc_ids[] = {
-	{ .compatible = "bouffalolab,bl808-emac" },
+	{ .compatible = "bouffalolab,bl808-emac", .data = BL808_FLAGS },
 	{ .compatible = "opencores,ethoc" },
 	{ }
 };

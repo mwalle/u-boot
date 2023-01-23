@@ -15,6 +15,9 @@
 	itb {
 		filename = "u-boot.itb";
 
+		u-boot-spl {
+		};
+
 		fit {
 			description = "Configuration to load OpenSBI before U-Boot";
 			#address-cells = <1>;
@@ -34,6 +37,7 @@
 					};
 				};
 
+#ifdef CONFIG_SPL_OPENSBI
 				opensbi {
 					description = "OpenSBI fw_dynamic Firmware";
 					type = "firmware";
@@ -47,6 +51,7 @@
 						filename = "fw_dynamic.bin";
 					};
 				};
+#endif
 
 #ifndef CONFIG_OF_BOARD
 				@fdt-SEQ {
@@ -66,7 +71,9 @@
 				conf-1 {
 #endif
 					description = "NAME";
+#ifdef CONFIG_SPL_OPENSBI
 					firmware = "opensbi";
+#endif
 					loadables = "uboot";
 #ifndef CONFIG_OF_BOARD
 					fdt = "fdt-SEQ";

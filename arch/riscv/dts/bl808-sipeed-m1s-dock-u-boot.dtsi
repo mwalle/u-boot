@@ -3,6 +3,8 @@
  * Copyright (C) Michael Walle <michael@walle.cc>
  */
 
+#include "binman.dtsi"
+
 / {
 	soc {
 		dmc: dmc@3000f000 {
